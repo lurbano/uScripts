@@ -32,6 +32,9 @@ ty = 340
 # temporary files
 qrFile = "qrFile.png"
 tmpTemplate = "tmpTemplate.svg"
+baseFileName = args.output.split(".")[0] 
+outSVG = baseFileName + ".svg"
+outPDF = baseFileName + ".pdf"
 
 svg = f'''<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
@@ -70,7 +73,8 @@ svg = f'''<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
 subprocess.run(f'qrencode -s 6 -o {qrFile} "{args.url}"', shell=True)
 
-with open("template_tmp.svg", "w") as f:
+with open(outSVG, "w") as f:
     f.write(svg)
 
+subprocess.run(f'inkscape --export-type="pdf" {outSVG}', shell=True)
 
