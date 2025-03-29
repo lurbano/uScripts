@@ -4,23 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>poem EPUB</title>
+    <style>
+        html, body {
+            height: 100%;
+        }
+        #workZone {
+            height: 90%;
+            display: grid;
+            grid-template-columns: 50% 50%;
+            margin: 1em;
+            
+        }
+        textarea {
+            width: 95%;
+            height:75%;
+        }
+    </style>
 </head>
 <body>
-    Author: <input type="text" id="authorInput"><br>
-    Title: <input type="text" id="titleInput"><br>
-    Start Year: <input type="text" id="stYearInput">
-    End Year (opt.): <input type="text" id="endYearInput"><br>
-    Input Poem as plain text:<br>
-    <textarea id="input_text"></textarea>
-    <input type="button" id="convert_to_EPUB_button" value="Convert to EPUB format"><br>
-    <p></p>
+    <div id="workZone">
 
-    Output:<br>
-    <textarea id="epub_area"></textarea>
-    <div id="xhtmlZone"></div>
+
+        <div id="inputZone">
+
+            Author: <input type="text" id="authorInput"><br>
+            Title: <input type="text" id="titleInput"><br>
+            Start Year: <input type="text" id="stYearInput">
+            End Year (opt.): <input type="text" id="endYearInput"><br>
+            Input Poem as plain text: 
+            <input type="button" id="convert_to_EPUB_button" value="Convert to EPUB format"><br>
+            <textarea id="input_text"></textarea>
+            
+            
+        </div>
+
+        <div id="outputZone">
+            Output:<br>
+            <textarea id="epub_area"></textarea>
+            <!-- <div id="xhtmlZone"></div> -->
+        </div>
+    </div>
+    
 </body>
 
 <script>
+
+
 
     function get_head() {
         let author = authorInput.value;
@@ -40,12 +69,14 @@
         headDiv.appendChild(linkDiv);
 
         let head = `<?xml version="1.0" encoding="utf-8"?>
-    <!DOCTYPE html>
-
-    <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
     `
-        head += formatHTML(headDiv);
-        console.log("get_head:", head);
+        // epub_area.value=headDiv.outerHTML;
+        // epub_area.value = prettyPrintHTML(headDiv.outerHTML);
+        head += prettyPrintHTML(headDiv);
+        // console.log("get_head:", head);
+        
         return head;
     }
 
@@ -126,7 +157,21 @@
     }
 
 
-    function formatHTML(html) {
+    function prettyPrintHTML(html) {
+        // let htmlString = html.outerHTML;
+        // const parser = new DOMParser();
+        // const doc = parser.parseFromString(htmlString, 'text/html');
+        
+        // // Convert the document back to a formatted string
+        const serializer = new XMLSerializer();
+        const formattedHTML = serializer.serializeToString(html);
+        
+        // Add indentation
+        return formattedHTML.replace(/></g, `>
+    <`);
+    }
+
+   function formatHTML(html) {
         html = html.outerHTML;
         let formatted = '';
         let indentLevel = 0;
@@ -145,7 +190,6 @@
         return formatted.trim();
     }
 
-
     convert_to_EPUB_button.addEventListener("click", function(){
 
         let xhtmlDoc = get_head() + "\n";
@@ -157,10 +201,9 @@
         console.log("xhtmlDoc:", xhtmlDoc);
 
         outputDiv = document.getElementById("epub_area");
-        outputDiv.innerText = xhtmlDoc;
+        // outputDiv.value = get_head();
 
-        outputDiv.innerHTML = "test";
-        xhtmlZone.innerText = xhtmlDoc;
+        epub_area.value = xhtmlDoc;
     })
 
 </script>
