@@ -17,79 +17,150 @@
 
     Output:<br>
     <textarea id="epub_area"></textarea>
+    <div id="xhtmlZone"></div>
 </body>
 
 <script>
 
-function get_head() {
-    let author = authorInput.value;
-    let title = titleInput.value;
-    let stYear = stYearInput.value;
-    let endYear = endYearInput.value;
+    function get_head() {
+        let author = authorInput.value;
+        let title = titleInput.value;
+        let stYear = stYearInput.value;
+        let endYear = endYearInput.value;
 
-    let head = `<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html>
+        let headDiv = document.createElement('head');
+        let titleDiv = document.createElement('title')
+        titleDiv.innerText = title;
+        headDiv.appendChild(titleDiv);
 
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
-<head>
-  <title>{title}</title>
+        let linkDiv = document.createElement('link');
+        linkDiv.setAttribute("rel", "stylesheet");
+        linkDiv.setAttribute("href", "../Styles/poemStyle.css");
+        linkDiv.setAttribute("type", "text/css");
+        headDiv.appendChild(linkDiv);
 
-	<link
-          rel="stylesheet"
-          href="../Styles/poemStyle.css"
-          type="text/css" />
-</head>
-<body>
-    <h1>${title}</h1>
-`
-    return head;
-}
+        let head = `<?xml version="1.0" encoding="utf-8"?>
+    <!DOCTYPE html>
 
-function get_tail() {
-    let author = authorInput.value;
-    let title = titleInput.value;
-    let stYear = stYearInput.value;
-    let endYear = endYearInput.value;
-
-    let tail = "";
-    if (endYear.length > 0) {
-        tail += `{author} ({stYear} — {endYear})`
-    }
-    else {
-        tail += `{author} ({stYear})`
+    <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+    `
+        head += formatHTML(headDiv);
+        console.log("get_head:", head);
+        return head;
     }
 
-    tail = `        <p class="credit">${tail}</p>\n`;
-    tail += `\n      
-</body>
-</html>`;
-    
-    return tail;
-}
+    function get_tail() {
+        return "</html>";
+    }
 
-function get_body(){
-    let poem = input_text.value;
+    function get_credit(){
+        let author = authorInput.value;
+        let title = titleInput.value;
+        let stYear = stYearInput.value;
+        let endYear = endYearInput.value;
 
-    let poemHTML = poem;
+        let creditDiv = document.createElement("p");
+        creditDiv.classList.add("credit");
+        
+        let authorCredit = "";
+        if (endYear.length > 0) {
+            authorCredit += `${author} (${stYear} — ${endYear})`
+        }
+        else {
+            authorCredit += `${author} (${stYear})`
+        }
 
-    let poemDiv = `<div class="poem">
-        ${poemHTML}
-</div>`;
+        creditDiv.innerHTML = authorCredit;
+        // console.log("creditDiv:", creditDiv)
+        return creditDiv;
+    }
 
-    return poemDiv;
+    function get_body(){
+        let author = authorInput.value;
+        let title = titleInput.value;
+        let stYear = stYearInput.value;
+        let endYear = endYearInput.value;
 
-}
-    
+        let bodyDiv = document.createElement("body");
+        let titleDiv = document.createElement("h1");
+        titleDiv.innerHTML = title;
+        bodyDiv.appendChild(titleDiv);
+
+        let poem = input_text.value.trim();
+        poem = poem.replaceAll("&", "&amp;")
+        // console.log(poem);
+
+        poem = poem.split(/\n/);
+        console.log("length:", poem.length);
+
+        let poemDiv = document.createElement("div");
+        poemDiv.classList.add("poem")
+        
+        // poemDiv.innerHTML = poem;
+        let stanzaDiv = document.createElement("div");
+        stanzaDiv.classList.add("stanza");
+        for (let i=0; i < poem.length; i++){
+            let line = poem[i].trim();
+            if (line.length > 0){
+                let pClass = (i%2 === 0) ? "poem1" : "poem2";
+                let lineP = document.createElement("p");
+                lineP.classList.add(pClass);
+                lineP.innerHTML = line;
+                stanzaDiv.appendChild(lineP);
+            }
+            else {  // end of stanza
+                poemDiv.appendChild(stanzaDiv);
+                stanzaDiv = document.createElement("div");
+                stanzaDiv.classList.add("stanza");
+            }
+        }
+        // add last stanza
+        poemDiv.appendChild(stanzaDiv);
+
+        poemDiv.appendChild(get_credit());
+
+        bodyDiv.appendChild(poemDiv);
+
+        return formatHTML(bodyDiv);
+
+    }
+
+
+    function formatHTML(html) {
+        html = html.outerHTML;
+        let formatted = '';
+        let indentLevel = 0;
+        const indent = '  '; // Two spaces for indentation
+
+        html.split(/>\s*</).forEach(tag => {
+            if (tag.match(/^\/\w/)) indentLevel--; // Closing tag
+
+            formatted += `${indent.repeat(indentLevel)}<${tag}>\n`;
+
+            if (tag.match(/^<?\w[^>]*[^/]$/) && !tag.startsWith("!")) indentLevel++; // Opening tag
+        });
+
+        formatted = formatted.replace("<<", "<");
+        formatted = formatted.replace(">>", ">\n")
+        return formatted.trim();
+    }
 
 
     convert_to_EPUB_button.addEventListener("click", function(){
-        let poem = get_body();
-        let head = get_head();
-        let tail = get_tail();
-        console.log(head);
-        console.log(poem);
-        console.log(tail);
 
+        let xhtmlDoc = get_head() + "\n";
+        xhtmlDoc += get_body() + "\n";
+        xhtmlDoc += get_tail();
+        // console.log(head);
+        // console.log("poem", Array.from(poem.children));
+
+        console.log("xhtmlDoc:", xhtmlDoc);
+
+        outputDiv = document.getElementById("epub_area");
+        outputDiv.innerText = xhtmlDoc;
+
+        outputDiv.innerHTML = "test";
+        xhtmlZone.innerText = xhtmlDoc;
     })
 
 </script>
