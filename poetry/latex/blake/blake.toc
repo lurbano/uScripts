@@ -1,0 +1,5 @@
+\contentsline {section}{ Tyger }{2}{section*.2}%
+\contentsline {section}{ A Poison Tree }{4}{section*.3}%
+\contentsline {section}{ The Human Abstract }{5}{section*.4}%
+\contentsline {section}{ Mock On, Mock On, Voltaire, Rousseau }{7}{section*.5}%
+\contentsline {section}{ Auguries of Innocence }{8}{section*.6}%

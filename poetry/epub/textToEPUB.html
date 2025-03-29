@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>poem EPUB</title>
+</head>
+<body>
+    Author: <input type="text" id="authorInput"><br>
+    Title: <input type="text" id="titleInput"><br>
+    Start Year: <input type="text" id="stYearInput">
+    End Year (opt.): <input type="text" id="endYearInput"><br>
+    Input Poem as plain text:<br>
+    <textarea id="input_text"></textarea>
+    <input type="button" id="convert_to_EPUB_button" value="Convert to EPUB format"><br>
+    <p></p>
+
+    Output:<br>
+    <textarea id="epub_area"></textarea>
+</body>
+
+<script>
+
+function get_head() {
+    let author = authorInput.value;
+    let title = titleInput.value;
+    let stYear = stYearInput.value;
+    let endYear = endYearInput.value;
+
+    let head = `<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head>
+  <title>{title}</title>
+
+	<link
+          rel="stylesheet"
+          href="../Styles/poemStyle.css"
+          type="text/css" />
+</head>
+<body>
+    <h1>${title}</h1>
+`
+    return head;
+}
+
+function get_tail() {
+    let author = authorInput.value;
+    let title = titleInput.value;
+    let stYear = stYearInput.value;
+    let endYear = endYearInput.value;
+
+    let tail = "";
+    if (endYear.length > 0) {
+        tail += `{author} ({stYear} — {endYear})`
+    }
+    else {
+        tail += `{author} ({stYear})`
+    }
+
+    tail = `        <p class="credit">${tail}</p>\n`;
+    tail += `\n      
+</body>
+</html>`;
+    
+    return tail;
+}
+
+function get_body(){
+    let poem = input_text.value;
+
+    let poemHTML = poem;
+
+    let poemDiv = `<div class="poem">
+        ${poemHTML}
+</div>`;
+
+    return poemDiv;
+
+}
+    
+
+
+    convert_to_EPUB_button.addEventListener("click", function(){
+        let poem = get_body();
+        let head = get_head();
+        let tail = get_tail();
+        console.log(head);
+        console.log(poem);
+        console.log(tail);
+
+    })
+
+</script>
+
+</html>
